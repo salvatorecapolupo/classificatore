@@ -1,130 +1,141 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Classificatore Visuale KNN</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Classificatore Interattivo</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f7f7f7;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      font-family: sans-serif;
+      text-align: center;
       margin: 0;
+      padding: 0;
     }
+
     h1 {
-      color: #333;
+      margin-top: 1em;
+      font-size: 2em;
     }
+
     canvas {
-      border: 2px solid #333;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      background-color: #fff;
-      cursor: crosshair;
+      border: 1px solid #aaa;
+      margin-top: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
+
+    .controls {
+      margin-top: 20px;
+    }
+
     button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      padding: 10px 15px;
+      margin: 5px;
+      font-size: 1em;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #45a049;
+
+    .selected {
+      border: 2px solid black;
     }
-    p {
-      max-width: 600px;
-      text-align: center;
-      margin: 10px auto;
-      color: #555;
+
+    #formula {
+      display: none;
+      margin-top: 30px;
+      font-family: monospace;
     }
   </style>
 </head>
 <body>
-  <h1>Classificatore Visuale KNN (k=1)</h1>
-  <p>
-    Clicca con il tasto sinistro per creare un punto rosso (classe 0), oppure con il destro per un punto blu (classe 1).
-    Quando hai finito, clicca su <b>"Allena modello"</b> per vedere la classificazione del piano.
-  </p>
 
-  <canvas id="canvas" width="500" height="500"></canvas><br>
-  <button onclick="train()">Allena modello</button>
+  <br>
+  <h1>Classificatore<br>Interattivo</h1>
+
+  <div class="controls">
+    <button id="selectBlue" class="selected">Classe 0 (Blu)</button>
+    <button id="selectRed">Classe 1 (Rosso)</button>
+  </div>
+
+  <canvas id="plot" width="400" height="400"></canvas>
+
+  <button onclick="trainModel()">Train the Model</button>
+
+  <div id="formula">
+    <h3>Formula del Modello</h3>
+    <p>y = w₀ + w₁x₁ + w₂x₂ + ... + wₙxₙ</p>
+  </div>
 
   <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const points = [];
+    const canvas = document.getElementById("plot");
+    const ctx = canvas.getContext("2d");
 
-    canvas.addEventListener('contextmenu', e => e.preventDefault()); // Blocca menu destro
+    let points = [];
+    let classes = [];
+    let weights = [0, 0, 0];
+    let currentClass = 0;
 
-    canvas.addEventListener('mousedown', function(e) {
+    const selectBlue = document.getElementById("selectBlue");
+    const selectRed = document.getElementById("selectRed");
+
+    selectBlue.onclick = () => {
+      currentClass = 0;
+      selectBlue.classList.add("selected");
+      selectRed.classList.remove("selected");
+    };
+
+    selectRed.onclick = () => {
+      currentClass = 1;
+      selectRed.classList.add("selected");
+      selectBlue.classList.remove("selected");
+    };
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const step = 20;
+      ctx.strokeStyle = '#ccc';
+      ctx.lineWidth = 0.5;
+      for (let x = 0; x <= canvas.width; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= canvas.height; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawPoints() {
+      drawGrid();
+      for (let i = 0; i < points.length; i++) {
+        ctx.beginPath();
+        ctx.arc(points[i][0], points[i][1], 5, 0, 2 * Math.PI);
+        ctx.fillStyle = classes[i] === 1 ? "red" : "blue";
+        ctx.fill();
+      }
+    }
+
+    canvas.addEventListener("click", function (e) {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      const label = e.button === 0 ? 0 : (e.button === 2 ? 1 : null);
-      if (label === null) return;
-      points.push({x, y, label});
-      drawPoint(x, y, label);
+
+      points.push([x, y]);
+      classes.push(currentClass);
+      drawPoints();
     });
 
-    function drawPoint(x, y, label) {
-      ctx.fillStyle = label === 0 ? 'red' : 'blue';
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, 2 * Math.PI);
-      ctx.fill();
+    function trainModel() {
+      // Simula un training (qui puoi inserire l'algoritmo reale)
+      weights = [Math.random(), Math.random(), Math.random()];
+      document.getElementById("formula").style.display = "block";
     }
 
-    function drawBackground(predict) {
-      const image = ctx.createImageData(canvas.width, canvas.height);
-      for (let y = 0; y < canvas.height; y++) {
-        for (let x = 0; x < canvas.width; x++) {
-          const label = predict(x, y);
-          const i = (y * canvas.width + x) * 4;
-          if (label === 0) {
-            image.data[i] = 255;
-            image.data[i+1] = 0;
-            image.data[i+2] = 0;
-          } else {
-            image.data[i] = 0;
-            image.data[i+1] = 0;
-            image.data[i+2] = 255;
-          }
-          image.data[i+3] = 25; // opacità
-        }
-      }
-      ctx.putImageData(image, 0, 0);
-      points.forEach(p => drawPoint(p.x, p.y, p.label));
-    }
-
-    function train() {
-      if (points.length < 2) {
-        alert("Aggiungi almeno due punti di classi diverse.");
-        return;
-      }
-
-      function predict(x, y) {
-        let minDist = Infinity;
-        let bestLabel = 0;
-        for (let p of points) {
-          const dx = x - p.x;
-          const dy = y - p.y;
-          const dist = dx*dx + dy*dy;
-          if (dist < minDist) {
-            minDist = dist;
-            bestLabel = p.label;
-          }
-        }
-        return bestLabel;
-      }
-
-      drawBackground(predict);
-    }
+    drawGrid();
   </script>
 </body>
 </html>
