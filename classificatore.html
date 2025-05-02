@@ -162,7 +162,7 @@
         for (let y = 0; y < HEIGHT; y += res) {
           const label = knnClassify(x, y, k);
           let baseColor = label === 'black' ? '#000000' : '#007bff';
-          let shaded = shadeColor(baseColor, 30);  // Sfumatura leggera
+          let shaded = shadeColor(baseColor, 9);  // Sfumatura leggera
           ctx.fillStyle = shaded;
           ctx.fillRect(x, y, res, res);
         }
