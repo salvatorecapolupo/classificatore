@@ -67,6 +67,17 @@
     ma ogni volta ricerca nei dati originali. Semplice, intuitivo, ma costoso 
     computazionalmente all'aumentare dei dati.
   </p>
+
+    <p>
+  Il parametro <strong>k</strong> controlla quanti vicini vengono consultati per prendere la decisione.
+  Con <em>k = 1</em> il confine tra le due classi è molto frastagliato: basta un singolo punto 
+  a fare da "re del territorio". All'aumentare di <em>k</em> la superficie di decisione si 
+  <strong>ammorbidisce</strong>: zone di confine ambigue vengono risolte per maggioranza, 
+  riducendo l'overfitting ma rischiando di perdere dettagli locali importanti. 
+  Scegliere <em>k</em> troppo grande equivale a ignorare la struttura locale dei dati; 
+  troppo piccolo rende il modello sensibile al rumore. In pratica si sceglie tramite 
+  <strong>cross-validation</strong>.
+</p>
 </div>
 
   <script>
