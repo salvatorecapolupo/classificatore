@@ -47,6 +47,28 @@
     </div>
   </div>
 
+  <div class="container py-3">
+  <h5>Come funziona il classificatore KNN?</h5>
+  <p>
+    Il classificatore KNN (<em>K-Nearest Neighbors</em>) impara osservando esempi. 
+    In questa demo, ogni punto che aggiungi sul canvas è un esempio: nero o azzurro. 
+    Quando premi <strong>Train</strong>, il modello deve decidere il colore di ogni 
+    pixel del canvas. Lo fa così:
+  </p>
+  <ol>
+    <li>Prende il pixel da classificare e calcola la sua distanza euclidea da tutti i punti inseriti.</li>
+    <li>Ordina i punti dal più vicino al più lontano e seleziona i <strong>k</strong> più vicini.</li>
+    <li>Conta quanti dei <em>k</em> vicini sono neri e quanti azzurri.</li>
+    <li>Assegna al pixel il colore della <strong>maggioranza</strong> (con <em>k = 1</em>, vince semplicemente il punto più vicino).</li>
+    <li>Il risultato visivo è la <strong>superficie di decisione</strong>: le regioni colorate mostrano dove il modello classificherebbe un nuovo punto sconosciuto.</li>
+  </ol>
+  <p>
+    KNN è un algoritmo <em>lazy</em>: non costruisce un modello matematico esplicito, 
+    ma ogni volta ricerca nei dati originali. Semplice, intuitivo, ma costoso 
+    computazionalmente all'aumentare dei dati.
+  </p>
+</div>
+
   <script>
     const canvas = document.getElementById('mainCanvas');
     const gridCanvas = document.getElementById('grid');
